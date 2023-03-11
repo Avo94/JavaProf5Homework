@@ -32,7 +32,8 @@ public class SeaBattle {
         System.out.println(secondPlayerName + " расставляет корабли!");
         fillPlayerField(secondPlayerLeftField, secondPlayerRightField, secondPlayerName);
 
-        startGame(firstPlayerName, secondPlayerName, firstPlayerLeftField, firstPlayerRightField, secondPlayerLeftField, secondPlayerRightField);
+        startGame(firstPlayerName, secondPlayerName,
+                firstPlayerLeftField, firstPlayerRightField, secondPlayerLeftField, secondPlayerRightField);
     }
 
     private static void gameFieldInitialization(char[][] playerLeftField, char[][] playerRightField) {
@@ -58,27 +59,29 @@ public class SeaBattle {
         }
     }
 
-    private static void printPlayerField(char[][] playerLeftField, char[][] playerRightField, String playerOneName) {
+    private static void printPlayerField(char[][] playerLeftField, char[][] playerRightField, String playerName) {
         System.out.println();
-        System.out.println("                                    " + playerOneName);
-        System.out.println("                  x                                         x");
+        System.out.printf("%42s", playerName);
+        System.out.println();
+        System.out.printf("%19s %41s", "x", "x");
+        System.out.println();
 
         for (int i = 0; i < playerLeftField.length; i++) {
             if (i == 5) {
-                System.out.print("y  ");
+                System.out.printf("%-3s", "y");
             } else {
-                System.out.print("   ");
+                System.out.printf("%-3s", "");
             }
             for (int j = 0; j < playerLeftField[i].length; j++) {
-                System.out.print(playerLeftField[i][j] + "  ");
+                System.out.printf("%-3s", playerLeftField[i][j]);
             }
             if (i == 5) {
-                System.out.print("      y  ");
+                System.out.printf("\t %2s %1s", "y", "");
             } else {
-                System.out.print("         ");
+                System.out.printf("\t %-4s", "");
             }
             for (int j = 0; j < playerRightField[i].length; j++) {
-                System.out.print(playerRightField[i][j] + "  ");
+                System.out.printf("%-3s", playerRightField[i][j]);
             }
             System.out.println();
         }
@@ -179,8 +182,9 @@ public class SeaBattle {
                     }
                 }
             }
-            // check for vertical ships
-        } else if (direction == 1) {
+        }
+        // check for vertical ships
+        else if (direction == 1) {
             if (y > FIELD_SIZE - (decksCount + 1)) {
                 System.out.println("Корабль не должен выходить за пределы поля");
                 return false;
@@ -217,53 +221,82 @@ public class SeaBattle {
         return true;
     }
 
-    private static void startGame(String firstPlayerName, String secondPlayerName, char[][] firstPlayerLeftField, char[][] firstPlayerRightField, char[][] secondPlayerLeftField, char[][] secondPlayerRightField) {
+    private static void startGame(String firstPlayerName, String secondPlayerName,
+                                  char[][] firstPlayerLeftField, char[][] firstPlayerRightField,
+                                  char[][] secondPlayerLeftField, char[][] secondPlayerRightField) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Корабли расставлены. Введите любой символ, чтобы начать:");
         String startGame = scanner.nextLine();
         boolean gameFinal;
 
-        int firstPlayerScoreBeforeShot = 0;
-        int firstPlayerScoreAfterShot = 1;
+        int firstPlayerLeftFieldBlankSectorsBeforeShot = 80;
+        int firstPlayerLeftFieldBlankSectorsAfterShot = 80;
 
-        int secondPlayerScoreBeforeShot = 0;
-        int secondPlayerScoreAfterShot = 1;
+        int secondPlayerLeftFieldBlankSectorsBeforeShot = 80;
+        int secondPlayerLeftFieldBlankSectorsAfterShot = 80;
 
         do {
-            if (firstPlayerScoreAfterShot > firstPlayerScoreBeforeShot) {
+            if (firstPlayerLeftFieldBlankSectorsBeforeShot >= firstPlayerLeftFieldBlankSectorsAfterShot) {
+                if (firstPlayerLeftFieldBlankSectorsBeforeShot > firstPlayerLeftFieldBlankSectorsAfterShot) {
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            secondPlayerLeftFieldBlankSectorsBeforeShot++;
+                        }
+                    }
+                    makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
+                    for (int i = 0; i < secondPlayerLeftField.length; i++) {
+                        for (int j = 0; j < secondPlayerLeftField.length; j++) {
+                            secondPlayerLeftFieldBlankSectorsAfterShot++;
+                        }
+                    }
+                    firstPlayerLeftFieldBlankSectorsBeforeShot = 0;
+                    firstPlayerLeftFieldBlankSectorsAfterShot = 1;
 
-                printPlayerField(firstPlayerLeftField, firstPlayerRightField, firstPlayerName);
-                makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
-                firstPlayerScoreBeforeShot = firstPlayerScoreAfterShot;
-
-                for (int i = 0; i < FIELD_SIZE - 1; i++) {
-                    for (int j = 0; j < FIELD_SIZE - 1; j++) {
-                        if (firstPlayerRightField[i][j] == '☑' || firstPlayerRightField[i][j] == '☒') {
-                            firstPlayerScoreAfterShot++;
+                } else if (firstPlayerLeftFieldBlankSectorsBeforeShot == firstPlayerLeftFieldBlankSectorsAfterShot) {
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            firstPlayerLeftFieldBlankSectorsBeforeShot++;
+                        }
+                    }
+                    makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            firstPlayerLeftFieldBlankSectorsAfterShot++;
                         }
                     }
                 }
-                if (firstPlayerScoreAfterShot == firstPlayerScoreBeforeShot) {
-                    secondPlayerScoreBeforeShot--;
-                }
-            } else if (secondPlayerScoreAfterShot > secondPlayerScoreBeforeShot) {
 
-                printPlayerField(secondPlayerLeftField, secondPlayerRightField, secondPlayerName);
-                makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
-                secondPlayerScoreBeforeShot = secondPlayerScoreAfterShot;
-
-                for (int i = 0; i < FIELD_SIZE - 1; i++) {
-                    for (int j = 0; j < FIELD_SIZE - 1; j++) {
-                        if (secondPlayerRightField[i][j] == '☑' || secondPlayerRightField[i][j] == '☒') {
-                            secondPlayerScoreAfterShot++;
+            } else if (secondPlayerLeftFieldBlankSectorsBeforeShot >= secondPlayerLeftFieldBlankSectorsAfterShot) {
+                if (secondPlayerLeftFieldBlankSectorsBeforeShot > secondPlayerLeftFieldBlankSectorsAfterShot) {
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            firstPlayerLeftFieldBlankSectorsBeforeShot++;
                         }
                     }
-                }
+                    makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            firstPlayerLeftFieldBlankSectorsAfterShot++;
+                        }
+                    }
+                    secondPlayerLeftFieldBlankSectorsBeforeShot = 0;
+                    secondPlayerLeftFieldBlankSectorsAfterShot = 1;
 
-                if (secondPlayerScoreAfterShot == secondPlayerScoreBeforeShot) {
-                    firstPlayerScoreBeforeShot--;
+                } else if (secondPlayerLeftFieldBlankSectorsBeforeShot == secondPlayerLeftFieldBlankSectorsAfterShot) {
+                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
+                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
+                            secondPlayerLeftFieldBlankSectorsBeforeShot++;
+                        }
+                    }
+                    makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
+                    for (int i = 0; i < secondPlayerLeftField.length; i++) {
+                        for (int j = 0; j < secondPlayerLeftField.length; j++) {
+                            secondPlayerLeftFieldBlankSectorsAfterShot++;
+                        }
+                    }
                 }
             }
+
             gameFinal = checkGameEnd(firstPlayerLeftField, secondPlayerLeftField);
         } while (!gameFinal);
     }
@@ -345,7 +378,8 @@ public class SeaBattle {
         //left deck check
         if (x == 0) {
             //double-deck ship
-            if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+            if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                    (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 rightField[y][x] = '☒';
@@ -353,7 +387,8 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // three-deck ship
-            else if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
+            else if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                    leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -363,7 +398,9 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // four-deck ship
-            else if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && leftField[y][x + 3] == '☑' && (leftField[y][x + 4] == '∙' || leftField[y][x + 4] == '◯')) {
+            else if (leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                    leftField[y][x + 2] == '☑' && leftField[y][x + 3] == '☑' &&
+                    (leftField[y][x + 4] == '∙' || leftField[y][x + 4] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -377,7 +414,8 @@ public class SeaBattle {
         }
         // double-deck ship
         else if (x == FIELD_SIZE - 3) {
-            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
+            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 rightField[y][x] = '☒';
@@ -387,7 +425,8 @@ public class SeaBattle {
         }
         // three-deck ship
         else if (x == FIELD_SIZE - 4) {
-            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑') {
+            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -399,7 +438,8 @@ public class SeaBattle {
         }
         // four-deck ship
         else if (x == FIELD_SIZE - 5) {
-            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && leftField[y][x + 3] == '☑') {
+            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && leftField[y][x + 3] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -412,7 +452,8 @@ public class SeaBattle {
             }
         } else {
             // double-deck ship
-            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+            if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 rightField[y][x] = '☒';
@@ -420,7 +461,9 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // three-deck ship
-            else if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
+            else if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' &&
+                    (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -430,7 +473,9 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // four-deck ship
-            else if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && leftField[y][x + 3] == '☑' && (leftField[y][x + 4] == '∙' || leftField[y][x + 4] == '◯')) {
+            else if ((leftField[y][x - 1] == '∙' || leftField[y][x - 1] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' &&
+                    leftField[y][x + 3] == '☑' && (leftField[y][x + 4] == '∙' || leftField[y][x + 4] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x + 1] = '☒';
                 leftField[y][x + 2] = '☒';
@@ -447,7 +492,8 @@ public class SeaBattle {
         if (x != 0) {
             // double-deck ship
             if (x == 1) {
-                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     rightField[y][x] = '☒';
@@ -457,7 +503,8 @@ public class SeaBattle {
             }
             // three-deck ship
             if (x == 2) {
-                if (leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                if (leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' &&
+                        leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -469,7 +516,8 @@ public class SeaBattle {
             }
             // four-deck ship
             else if (x == 3) {
-                if (leftField[y][x - 3] == '☑' && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                if (leftField[y][x - 3] == '☑' && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' &&
+                        leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -482,7 +530,8 @@ public class SeaBattle {
                 }
             } else if (x == FIELD_SIZE - 2) {
                 // double-deck ship
-                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
+                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') &&
+                        leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     rightField[y][x] = '☒';
@@ -490,7 +539,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // three-deck ship
-                else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
+                else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') &&
+                        leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -500,7 +550,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // four-deck ship
-                else if ((leftField[y][x - 4] == '∙' || leftField[y][x - 4] == '◯') && leftField[y][x - 3] == '☑' && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
+                else if ((leftField[y][x - 4] == '∙' || leftField[y][x - 4] == '◯') && leftField[y][x - 3] == '☑' &&
+                        leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -513,7 +564,9 @@ public class SeaBattle {
                 }
             } else if ((x != 1)) {
                 // double-deck ship
-                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') &&
+                        leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     rightField[y][x] = '☒';
@@ -521,7 +574,9 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // three-deck ship
-                else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') &&
+                        leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -531,7 +586,9 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // four-deck ship
-                else if ((leftField[y][x - 4] == '∙' || leftField[y][x - 4] == '◯') && leftField[y][x - 3] == '☑' && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
+                else if ((leftField[y][x - 4] == '∙' || leftField[y][x - 4] == '◯') && leftField[y][x - 3] == '☑' &&
+                        leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y][x + 1] == '∙' || leftField[y][x + 1] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x - 2] = '☒';
@@ -549,7 +606,8 @@ public class SeaBattle {
         if (x > 0 && x < FIELD_SIZE - 2) {
             // three-deck ship
             if (x == 1) {
-                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                        (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x + 1] = '☒';
@@ -559,7 +617,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (x == FIELD_SIZE - 3) {
-                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
+                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' &&
+                        leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x + 1] = '☒';
@@ -568,7 +627,9 @@ public class SeaBattle {
                     rightField[y][x + 1] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+            } else if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') &&
+                    leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                    (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x - 1] = '☒';
                 leftField[y][x + 1] = '☒';
@@ -583,7 +644,8 @@ public class SeaBattle {
         if (x > 0 && x < FIELD_SIZE - 3) {
             // four-deck ship
             if (x == 1) {
-                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
+                if (leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                        leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x + 1] = '☒';
@@ -595,7 +657,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (x == FIELD_SIZE - 4) {
-                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑') {
+                if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' &&
+                        leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 1] = '☒';
                     leftField[y][x + 1] = '☒';
@@ -606,7 +669,9 @@ public class SeaBattle {
                     rightField[y][x + 2] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
+            } else if ((leftField[y][x - 2] == '∙' || leftField[y][x - 2] == '◯') &&
+                    leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' &&
+                    leftField[y][x + 2] == '☑' && (leftField[y][x + 3] == '∙' || leftField[y][x + 3] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x - 1] = '☒';
                 leftField[y][x + 1] = '☒';
@@ -623,7 +688,8 @@ public class SeaBattle {
         if (x > 1 && x < FIELD_SIZE - 2) {
             // four-deck ship
             if (x == 2) {
-                if (leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+                if (leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                        leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y][x - 2] = '☒';
                     leftField[y][x - 1] = '☒';
@@ -635,7 +701,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (x == FIELD_SIZE - 3) {
-                if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
+                if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') && leftField[y][x - 2] == '☑' &&
+                        leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y][x - 2] = '☒';
                     leftField[y][x - 1] = '☒';
@@ -646,7 +713,9 @@ public class SeaBattle {
                     rightField[y][x + 1] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') && leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' && leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
+            } else if ((leftField[y][x - 3] == '∙' || leftField[y][x - 3] == '◯') &&
+                    leftField[y][x - 2] == '☑' && leftField[y][x - 1] == '☑' && leftField[y][x] == '☑' &&
+                    leftField[y][x + 1] == '☑' && (leftField[y][x + 2] == '∙' || leftField[y][x + 2] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y][x - 2] = '☒';
                 leftField[y][x - 1] = '☒';
@@ -665,7 +734,8 @@ public class SeaBattle {
         //top deck
         if (y == 0) {
             // double-deck ship
-            if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+            if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' &&
+                    (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 rightField[y][x] = '☒';
@@ -673,7 +743,8 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // three-deck ship
-            else if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
+            else if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' &&
+                    (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -683,7 +754,8 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // four-deck ship
-            else if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && leftField[y + 3][x] == '☑' && (leftField[y + 4][x] == '∙' || leftField[y + 4][x] == '◯')) {
+            else if (leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' &&
+                    leftField[y + 3][x] == '☑' && (leftField[y + 4][x] == '∙' || leftField[y + 4][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -696,7 +768,8 @@ public class SeaBattle {
             }
         } else if (y == FIELD_SIZE - 3) {
             // double-deck ship
-            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
+            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 rightField[y][x] = '☒';
@@ -705,7 +778,8 @@ public class SeaBattle {
             }
         } else if (y == FIELD_SIZE - 4) {
             // three-deck ship
-            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑') {
+            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -716,7 +790,8 @@ public class SeaBattle {
             }
         } else if (y == FIELD_SIZE - 5) {
             // four-deck ship
-            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && leftField[y + 3][x] == '☑') {
+            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && leftField[y + 3][x] == '☑') {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -729,14 +804,17 @@ public class SeaBattle {
             }
         } else {
             // double-deck ship
-            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+            if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 rightField[y][x] = '☒';
                 rightField[y + 1][x] = '☒';
             }
             // three-deck ship
-            else if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
+            else if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') &&
+                    leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' &&
+                    (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -746,7 +824,9 @@ public class SeaBattle {
                 System.out.println("Убит!");
             }
             // four-deck ship
-            else if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && leftField[y + 3][x] == '☑' && (leftField[y + 4][x] == '∙' || leftField[y + 4][x] == '◯')) {
+            else if ((leftField[y - 1][x] == '∙' || leftField[y - 1][x] == '◯') && leftField[y][x] == '☑' &&
+                    leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && leftField[y + 3][x] == '☑' &&
+                    (leftField[y + 4][x] == '∙' || leftField[y + 4][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y + 1][x] = '☒';
                 leftField[y + 2][x] = '☒';
@@ -763,7 +843,8 @@ public class SeaBattle {
         if (y != 0) {
             // double-deck ship
             if (y == 1) {
-                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     rightField[y][x] = '☒';
@@ -773,7 +854,8 @@ public class SeaBattle {
             }
             // three-deck ship
             else if (y == 2) {
-                if (leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                if (leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -785,7 +867,8 @@ public class SeaBattle {
             }
             // four-deck ship
             else if (y == 3) {
-                if (leftField[y - 3][x] == '☑' && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                if (leftField[y - 3][x] == '☑' && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' &&
+                        leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -798,7 +881,8 @@ public class SeaBattle {
                 }
             } else if (y == FIELD_SIZE - 2) {
                 // double-deck ship
-                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
+                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') &&
+                        leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     rightField[y][x] = '☒';
@@ -806,7 +890,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // three-deck ship
-                else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
+                else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' &&
+                        leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -816,7 +901,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // four-deck ship
-                else if ((leftField[y - 4][x] == '∙' || leftField[y - 4][x] == '◯') && leftField[y - 3][x] == '☑' && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
+                else if ((leftField[y - 4][x] == '∙' || leftField[y - 4][x] == '◯') && leftField[y - 3][x] == '☑' &&
+                        leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -829,7 +915,8 @@ public class SeaBattle {
                 }
             } else {
                 // double-deck ship
-                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' &&
+                        leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     rightField[y][x] = '☒';
@@ -837,7 +924,9 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // three-deck ship
-                else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') &&
+                        leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -847,7 +936,9 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
                 // four-deck ship
-                else if ((leftField[y - 4][x] == '∙' || leftField[y - 4][x] == '◯') && leftField[y - 3][x] == '☑' && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
+                else if ((leftField[y - 4][x] == '∙' || leftField[y - 4][x] == '◯') && leftField[y - 3][x] == '☑' &&
+                        leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' &&
+                        (leftField[y + 1][x] == '∙' || leftField[y + 1][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y - 2][x] = '☒';
@@ -864,7 +955,8 @@ public class SeaBattle {
         if (y > 0 && y < FIELD_SIZE - 2) {
             // three-deck ship
             if (y == 1) {
-                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' &&
+                        (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y + 1][x] = '☒';
@@ -874,7 +966,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (y == FIELD_SIZE - 3) {
-                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
+                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' &&
+                        leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y + 1][x] = '☒';
@@ -883,7 +976,9 @@ public class SeaBattle {
                     rightField[y + 1][x] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+            } else if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') &&
+                    leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' &&
+                    (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y - 1][x] = '☒';
                 leftField[y + 1][x] = '☒';
@@ -898,7 +993,8 @@ public class SeaBattle {
         if (y > 0 && y < FIELD_SIZE - 3) {
             // four-deck ship
             if (y == 1) {
-                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
+                if (leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' &&
+                        leftField[y + 2][x] == '☑' && (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y + 1][x] = '☒';
@@ -910,7 +1006,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (y == FIELD_SIZE - 4) {
-                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑') {
+                if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' &&
+                        leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 1][x] = '☒';
                     leftField[y + 1][x] = '☒';
@@ -921,7 +1018,9 @@ public class SeaBattle {
                     rightField[y + 2][x] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' && (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
+            } else if ((leftField[y - 2][x] == '∙' || leftField[y - 2][x] == '◯') && leftField[y - 1][x] == '☑' &&
+                    leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && leftField[y + 2][x] == '☑' &&
+                    (leftField[y + 3][x] == '∙' || leftField[y + 3][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y - 1][x] = '☒';
                 leftField[y + 1][x] = '☒';
@@ -938,7 +1037,8 @@ public class SeaBattle {
         if (y > 1 && y < FIELD_SIZE - 2) {
             // four-deck ship
             if (y == 2) {
-                if (leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+                if (leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' &&
+                        leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                     leftField[y][x] = '☒';
                     leftField[y - 2][x] = '☒';
                     leftField[y - 1][x] = '☒';
@@ -950,7 +1050,8 @@ public class SeaBattle {
                     System.out.println("Убит!");
                 }
             } else if (y == FIELD_SIZE - 3) {
-                if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
+                if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' &&
+                        leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑') {
                     leftField[y][x] = '☒';
                     leftField[y - 2][x] = '☒';
                     leftField[y - 1][x] = '☒';
@@ -961,7 +1062,9 @@ public class SeaBattle {
                     rightField[y + 1][x] = '☒';
                     System.out.println("Убит!");
                 }
-            } else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' && leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' && (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
+            } else if ((leftField[y - 3][x] == '∙' || leftField[y - 3][x] == '◯') && leftField[y - 2][x] == '☑' &&
+                    leftField[y - 1][x] == '☑' && leftField[y][x] == '☑' && leftField[y + 1][x] == '☑' &&
+                    (leftField[y + 2][x] == '∙' || leftField[y + 2][x] == '◯')) {
                 leftField[y][x] = '☒';
                 leftField[y - 2][x] = '☒';
                 leftField[y - 1][x] = '☒';
