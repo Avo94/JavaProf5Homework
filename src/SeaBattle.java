@@ -224,88 +224,82 @@ public class SeaBattle {
     private static void startGame(String firstPlayerName, String secondPlayerName,
                                   char[][] firstPlayerLeftField, char[][] firstPlayerRightField,
                                   char[][] secondPlayerLeftField, char[][] secondPlayerRightField) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Корабли расставлены. Введите любой символ, чтобы начать:");
-        String startGame = scanner.nextLine();
-        boolean gameFinal;
+        final int RESET = 0;
+        boolean gameFinal = false;
 
-        int firstPlayerLeftFieldBlankSectorsBeforeShot = 80;
-        int firstPlayerLeftFieldBlankSectorsAfterShot = 80;
+        int firstPlayerLeftFieldBlankSectorsBeforeShot;
+        int firstPlayerLeftFieldBlankSectorsAfterShot;
 
-        int secondPlayerLeftFieldBlankSectorsBeforeShot = 80;
-        int secondPlayerLeftFieldBlankSectorsAfterShot = 80;
+        int secondPlayerLeftFieldBlankSectorsBeforeShot;
+        int secondPlayerLeftFieldBlankSectorsAfterShot;
 
         do {
-            if (firstPlayerLeftFieldBlankSectorsBeforeShot >= firstPlayerLeftFieldBlankSectorsAfterShot) {
-                if (firstPlayerLeftFieldBlankSectorsBeforeShot > firstPlayerLeftFieldBlankSectorsAfterShot) {
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            secondPlayerLeftFieldBlankSectorsBeforeShot++;
-                        }
-                    }
-                    makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
-                    for (int i = 0; i < secondPlayerLeftField.length; i++) {
-                        for (int j = 0; j < secondPlayerLeftField.length; j++) {
-                            secondPlayerLeftFieldBlankSectorsAfterShot++;
-                        }
-                    }
-                    firstPlayerLeftFieldBlankSectorsBeforeShot = 0;
-                    firstPlayerLeftFieldBlankSectorsAfterShot = 1;
+            do {
+                secondPlayerLeftFieldBlankSectorsBeforeShot = RESET;
+                secondPlayerLeftFieldBlankSectorsAfterShot = RESET;
 
-                } else if (firstPlayerLeftFieldBlankSectorsBeforeShot == firstPlayerLeftFieldBlankSectorsAfterShot) {
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            firstPlayerLeftFieldBlankSectorsBeforeShot++;
-                        }
-                    }
-                    makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            firstPlayerLeftFieldBlankSectorsAfterShot++;
-                        }
-                    }
+                secondPlayerLeftFieldBlankSectorsBeforeShot =
+                        blankSectorsCount(secondPlayerLeftField, secondPlayerLeftFieldBlankSectorsBeforeShot);
+
+                printPlayerField(firstPlayerLeftField, firstPlayerRightField, firstPlayerName);
+                makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
+
+                secondPlayerLeftFieldBlankSectorsAfterShot =
+                        blankSectorsCount(secondPlayerLeftField, secondPlayerLeftFieldBlankSectorsAfterShot);
+
+                if (checkGameEnd(secondPlayerLeftField)) {
+                    System.out.println("Игра окончена! Победитель - " + firstPlayerName);
+                    gameFinal = checkGameEnd(secondPlayerLeftField);
+                    break;
                 }
+            } while (secondPlayerLeftFieldBlankSectorsBeforeShot == secondPlayerLeftFieldBlankSectorsAfterShot);
 
-            } else if (secondPlayerLeftFieldBlankSectorsBeforeShot >= secondPlayerLeftFieldBlankSectorsAfterShot) {
-                if (secondPlayerLeftFieldBlankSectorsBeforeShot > secondPlayerLeftFieldBlankSectorsAfterShot) {
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            firstPlayerLeftFieldBlankSectorsBeforeShot++;
-                        }
-                    }
-                    makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            firstPlayerLeftFieldBlankSectorsAfterShot++;
-                        }
-                    }
-                    secondPlayerLeftFieldBlankSectorsBeforeShot = 0;
-                    secondPlayerLeftFieldBlankSectorsAfterShot = 1;
-
-                } else if (secondPlayerLeftFieldBlankSectorsBeforeShot == secondPlayerLeftFieldBlankSectorsAfterShot) {
-                    for (int i = 0; i < firstPlayerLeftField.length; i++) {
-                        for (int j = 0; j < firstPlayerLeftField.length; j++) {
-                            secondPlayerLeftFieldBlankSectorsBeforeShot++;
-                        }
-                    }
-                    makeShot(secondPlayerLeftField, firstPlayerRightField, firstPlayerName);
-                    for (int i = 0; i < secondPlayerLeftField.length; i++) {
-                        for (int j = 0; j < secondPlayerLeftField.length; j++) {
-                            secondPlayerLeftFieldBlankSectorsAfterShot++;
-                        }
-                    }
-                }
+            if (checkGameEnd(secondPlayerLeftField)) {
+                break;
             }
 
-            gameFinal = checkGameEnd(firstPlayerLeftField, secondPlayerLeftField);
+            do {
+                firstPlayerLeftFieldBlankSectorsBeforeShot = RESET;
+                firstPlayerLeftFieldBlankSectorsAfterShot = RESET;
+
+                firstPlayerLeftFieldBlankSectorsBeforeShot =
+                        blankSectorsCount(firstPlayerLeftField, firstPlayerLeftFieldBlankSectorsBeforeShot);
+
+                printPlayerField(secondPlayerLeftField, secondPlayerRightField, secondPlayerName);
+                makeShot(firstPlayerLeftField, secondPlayerRightField, secondPlayerName);
+
+                firstPlayerLeftFieldBlankSectorsAfterShot =
+                        blankSectorsCount(firstPlayerLeftField, firstPlayerLeftFieldBlankSectorsAfterShot);
+
+                if (checkGameEnd(firstPlayerLeftField)) {
+                    System.out.println("Игра окончена! Победитель - " + secondPlayerName);
+                    gameFinal = checkGameEnd(firstPlayerLeftField);
+                    break;
+                }
+            } while (firstPlayerLeftFieldBlankSectorsBeforeShot == firstPlayerLeftFieldBlankSectorsAfterShot);
+
+            if (checkGameEnd(firstPlayerLeftField)) {
+                break;
+            }
         } while (!gameFinal);
     }
 
-    private static boolean checkGameEnd(char[][] firstPlayerLeftField, char[][] secondPlayerLeftField) {
+    private static int blankSectorsCount(char[][] playerLeftField, int leftFieldBlankSectors) {
+        for (int i = 0; i < playerLeftField.length; i++) {
+            for (int j = 0; j < playerLeftField[i].length; j++) {
+                if (playerLeftField[i][j] == '∙') {
+                    leftFieldBlankSectors++;
+                }
+            }
+        }
+        return leftFieldBlankSectors;
+    }
+
+    private static boolean checkGameEnd(char[][] playerLeftField) {
         boolean check = true;
-        for (int i = 0; i < firstPlayerLeftField.length; i++) {
-            for (int j = 0; j < firstPlayerLeftField[i].length; j++) {
-                if (firstPlayerLeftField[i][j] == '◼' || secondPlayerLeftField[i][j] == '◼') {
+        for (int i = 0; i < playerLeftField.length; i++) {
+            for (int j = 0; j < playerLeftField[i].length; j++) {
+                if (playerLeftField[i][j] == '◼') {
                     check = false;
                     break;
                 }
@@ -363,6 +357,14 @@ public class SeaBattle {
             leftField[y][x] = '☒';
             rightField[y][x] = '☒';
             System.out.println("Убит!");
+        } else if (leftField[y][x] == '☑') {
+            leftField[y][x] = '☑';
+            rightField[y][x] = '☑';
+            System.out.println("Вы уже сюда стреляли. Переход хода!");
+        } else if (leftField[y][x] == '☒') {
+            leftField[y][x] = '☒';
+            rightField[y][x] = '☒';
+            System.out.println("Вы уже сюда стреляли. Переход хода!");
         } else {
             leftField[y][x] = '◯';
             rightField[y][x] = '◯';
